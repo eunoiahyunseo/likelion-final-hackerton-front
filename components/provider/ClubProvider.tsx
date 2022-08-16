@@ -1,11 +1,21 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import ClubContext from "@components/provider/ClubContext";
+import {
+  selectionItem,
+  club as importedClub,
+} from "../../pages";
 
 const ClubProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const value = { club: "" };
+  const [club, setClub] = useState<selectionItem>(
+    importedClub[0]
+  );
 
+  const value = {
+    state: { club },
+    actions: { setClub },
+  };
   return (
     <ClubContext.Provider value={value}>
       {children}

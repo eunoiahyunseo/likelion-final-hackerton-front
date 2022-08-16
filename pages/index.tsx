@@ -15,12 +15,12 @@ import Image from "next/image";
 import { cls } from "@libs/client/utils";
 import { useClubContext } from "@components/provider/ClubContext";
 
-interface selectionItem {
+export interface selectionItem {
   name: string;
   [key: string]: any;
 }
 
-const club: selectionItem[] = [
+export const club: selectionItem[] = [
   { name: "Likelion" },
   { name: "Kert" },
   { name: "L&C" },
@@ -30,19 +30,18 @@ const club: selectionItem[] = [
 ];
 
 interface ExampleProps {
-  item: selectionItem[];
+  items: selectionItem[];
   smallVersion?: boolean;
   selected: selectionItem;
   setSelected: Dispatch<SetStateAction<selectionItem>>;
 }
 
 function Example({
-  item,
+  items,
   smallVersion = false,
   selected,
   setSelected,
 }: ExampleProps) {
-  // const {}
   return (
     <div
       className={cls(
@@ -70,9 +69,9 @@ function Example({
             leaveTo="opacity-0"
           >
             <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {item.map((person, personIdx) => (
+              {items.map((item, itemIdx) => (
                 <Listbox.Option
-                  key={personIdx}
+                  key={itemIdx}
                   className={({ active }) =>
                     `relative cursor-default select-none py-2 pl-10 pr-4 ${
                       active
@@ -80,7 +79,7 @@ function Example({
                         : "text-gray-900"
                     }`
                   }
-                  value={person}
+                  value={item}
                 >
                   {({ selected }) => (
                     <>
@@ -91,7 +90,7 @@ function Example({
                             : "font-normal"
                         }`}
                       >
-                        {person.name}
+                        {item.name}
                       </span>
                       {selected ? (
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
@@ -197,8 +196,13 @@ const ChartComponent = ({
 };
 
 const Home = () => {
-  const [selectedClub, setSelectedClub] =
-    useState<selectionItem>(club[0]);
+  const {
+    state: { club: selectedClub },
+    actions: { setClub: setSelectedClub },
+  } = useClubContext();
+
+  // console.log("club value check >> ", selectedClub);
+
   const [expenditure, setExpenditure] = useState<selectionItem>(
     monthExpenditure[0]
   );
@@ -206,14 +210,13 @@ const Home = () => {
     Partial<CharInfoType>
   >(ChartInfo[0]);
 
-  const [totalAssets, setTotalAssets] =
-    useState<number>(1373240);
+  const [totalAssets, _] = useState<number>(1373240);
   return (
     <Layout title="홈" hasTabBar seoTitle="home | Monegement">
       <div className="px-10">
         <div className="mt-2 flex items-center justify-between">
           <Example
-            item={club}
+            items={club}
             selected={selectedClub}
             setSelected={setSelectedClub}
           />
@@ -223,6 +226,7 @@ const Home = () => {
                 src={"/calender.png"}
                 width={25}
                 height={25}
+                alt=""
               />
             </div>
             <div className="relative top-[2px] cursor-pointer rounded-md p-[6px] hover:bg-gray-200">
@@ -230,6 +234,7 @@ const Home = () => {
                 src={"/hambuger.png"}
                 width={25}
                 height={25}
+                alt=""
               />
             </div>
           </div>
@@ -266,7 +271,6 @@ const Home = () => {
                 alt="graph2 props"
                 src={`/graph2.png`}
                 className="z-0 object-contain"
-                // placeholder="blur"
               />
             </div>
           </div>
@@ -280,7 +284,7 @@ const Home = () => {
                   총지출
                 </span>
                 <Example
-                  item={monthExpenditure}
+                  items={monthExpenditure}
                   smallVersion
                   selected={expenditure}
                   setSelected={setExpenditure}
