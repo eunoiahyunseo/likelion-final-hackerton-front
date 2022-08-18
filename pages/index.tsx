@@ -4,6 +4,7 @@ import {
   Dispatch,
   Fragment,
   SetStateAction,
+  useEffect,
   useState,
 } from "react";
 import { Listbox, Transition } from "@headlessui/react";
@@ -42,7 +43,7 @@ interface ExampleProps {
   setSelected: Dispatch<SetStateAction<Club>>;
 }
 
-function Example({
+export function Example({
   items,
   smallVersion = false,
   selected,
@@ -204,7 +205,7 @@ const ChartComponent = ({
 const Home = ({ clubs }: { clubs: Club[] }) => {
   const {
     state: { club: selectedClub },
-    actions: { setClub: setSelectedClub },
+    actions: { setClub: setSelectedClub, setClubOnSession },
   } = useClubContext();
 
   const [expenditure, setExpenditure] = useState<any>(
@@ -218,6 +219,12 @@ const Home = ({ clubs }: { clubs: Club[] }) => {
   if (typeof window !== "undefined") {
     localStorage.setItem("clubs", JSON.stringify(clubs));
   }
+
+  // 먄약에 club이 바뀌면 ContextAPI의 selectedClub이 바뀔것이다.
+  useEffect(() => {
+    setClubOnSession(selectedClub?.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedClub]);
 
   const [totalAssets, _] = useState<number>(1373240);
   return (

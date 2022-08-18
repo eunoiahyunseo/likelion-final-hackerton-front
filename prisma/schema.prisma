@@ -28,8 +28,9 @@ model Club {
   id   Int    @id @default(autoincrement())
   name String @unique
 
-  users User[]
-  posts Post[]
+  users   User[]
+  posts   Post[]
+  Finance Finance[]
 }
 
 // many-to-many를 위한 추가 테이블
@@ -92,4 +93,15 @@ model Answer {
 
   @@index([userId])
   @@index([postId])
+}
+
+// 기본적으로는 지출이라고 본다.
+model Finance {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  out       Boolean  @default(true)
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId    Int
+  money     Int
 }

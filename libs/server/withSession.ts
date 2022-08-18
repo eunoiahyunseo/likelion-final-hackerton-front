@@ -8,6 +8,9 @@ declare module "iron-session" {
     user?: {
       id: number;
     };
+    club?: {
+      id: number;
+    };
   }
 }
 

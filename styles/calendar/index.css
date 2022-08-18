@@ -1,0 +1,34 @@
+.react-calendar { 
+    color: #222!important
+    
+}
+
+.react-calendar__tile--now abbr {
+    background-color: #f87171!important;
+    color: white!important;
+    padding: 3px!important;
+    border-radius: 100%!important;
+}
+
+.react-calendar__tile--now {
+    background-color: white!important;
+}
+
+.react-calendar__tile--active {
+    background-color: #EEE!important;
+    color: black!important;
+    border-radius: 5px!important;
+}
+
+.react-calendar__tile:hover {
+    background-color: #EEE!important;
+    border-radius: 5px!important;
+}
+
+button.react-calendar__tile {
+    display: block!important;
+}
+
+.react-calendar__viewContainer {
+    width: 100%!important;
+}

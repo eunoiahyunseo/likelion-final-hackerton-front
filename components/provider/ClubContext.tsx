@@ -12,6 +12,7 @@ interface ClubContextType {
   };
   actions: {
     setClub: Dispatch<SetStateAction<Club>>;
+    setClubOnSession: (club: number) => void;
   };
 }
 
@@ -25,6 +26,7 @@ const ClubContext = createContext<ClubContextType>({
   },
   actions: {
     setClub: () => {},
+    setClubOnSession: () => {},
   },
 });
 
