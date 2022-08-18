@@ -18,7 +18,29 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   tokens    Token[]
+  answers   Answer[]
+  clubs     Club[]
 }
+
+// user와 club은 many-to-many 관계이다.
+// 그 이유는 한 사람이 여러개의 동아리를 한 동아리가 여러개의 사용자를 가질 수 있기 때문이다.
+model Club {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  users User[]
+  posts Post[]
+}
+
+// many-to-many를 위한 추가 테이블
+// model ClubsOnUsers {
+//   user   User @relation(fields: [userId], references: [id])
+//   userId Int
+//   club   Club @relation(fields: [clubId], references: [id])
+//   clubId Int
+
+//   @@id([userId, clubId])
+// }
 
 model Token {
   id        Int      @id @default(autoincrement())
@@ -29,4 +51,45 @@ model Token {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+}
+
+// model Executive {
+//   id     Int   @id @default(autoincrement())
+//   User   User? @relation(fields: [userId], references: [id])
+//   userId Int?
+//   Club   Club? @relation(fields: [clubId], references: [id])
+//   clubId Int?
+// }
+
+// User가 만드는게 아니라 동아리에서 만듬 그리고 질문을 저장해야 하고
+// 답변 목록을 쿼링할 수 있어야 한다.
+// 또한 Post에는 제목도 있어야 할듯?
+// 뿐만 아니라 해결여부도 나타내주어야 한다.
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  question  String   @db.LongText
+  solve     Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId    Int
+  answers   Answer[]
+}
+
+// Post와 연결되어 있는 답변 테이블 그리고 답변을 쓴 사용자를
+// 가려낼 수 있어야 한다.
+model Answer {
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+  answer String @db.MediumText
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([postId])
 }

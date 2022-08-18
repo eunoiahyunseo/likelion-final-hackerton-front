@@ -14,26 +14,32 @@ import {
 import Image from "next/image";
 import { cls } from "@libs/client/utils";
 import { useClubContext } from "@components/provider/ClubContext";
+import client from "@libs/client/client";
+import { withSsrSession } from "@libs/server/withSession";
+import { NextPageContext } from "next";
+import { Club } from "@prisma/client";
+import { browser } from "process";
+import Link from "next/link";
 
-export interface selectionItem {
-  name: string;
-  [key: string]: any;
-}
+// export interface selectionItem {
+//   name: string;
+//   [key: string]: any;
+// }
 
-export const club: selectionItem[] = [
-  { name: "Likelion" },
-  { name: "Kert" },
-  { name: "L&C" },
-  { name: "GET IT" },
-  { name: "GET-P" },
-  { name: "Gru" },
-];
+// export const club: selectionItem[] = [
+//   { name: "Likelion" },
+//   { name: "Kert" },
+//   { name: "L&C" },
+//   { name: "GET IT" },
+//   { name: "GET-P" },
+//   { name: "Gru" },
+// ];
 
 interface ExampleProps {
-  items: selectionItem[];
+  items: Club[];
   smallVersion?: boolean;
-  selected: selectionItem;
-  setSelected: Dispatch<SetStateAction<selectionItem>>;
+  selected: Club;
+  setSelected: Dispatch<SetStateAction<Club>>;
 }
 
 function Example({
@@ -53,7 +59,7 @@ function Example({
         <div className="relative mt-1">
           <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white py-3 pl-3 pr-10 text-center focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300">
             <span className="block truncate text-xl font-semibold text-gray-600">
-              {selected.name}
+              {selected?.name || "No Selected"}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronDownIcon
@@ -132,7 +138,7 @@ const ChartInfo: Partial<CharInfoType>[] = [
   },
 ];
 
-const monthExpenditure: selectionItem[] = [
+const monthExpenditure: any[] = [
   { name: "1월 지출", expenditure: { total: 776300 } },
   { name: "2월 지출", expenditure: { total: 992100 } },
   { name: "3월 지출", expenditure: { total: 646100 } },
@@ -195,20 +201,23 @@ const ChartComponent = ({
   );
 };
 
-const Home = () => {
+const Home = ({ clubs }: { clubs: Club[] }) => {
   const {
     state: { club: selectedClub },
     actions: { setClub: setSelectedClub },
   } = useClubContext();
 
-  // console.log("club value check >> ", selectedClub);
-
-  const [expenditure, setExpenditure] = useState<selectionItem>(
+  const [expenditure, setExpenditure] = useState<any>(
     monthExpenditure[0]
   );
   const [selectedChart, setSelectedChart] = useState<
     Partial<CharInfoType>
   >(ChartInfo[0]);
+
+  // localStorage에 clubs를 저장해준다. -> 로그인되어 있는 유저의 클럽정보만 표시해준다.
+  if (typeof window !== "undefined") {
+    localStorage.setItem("clubs", JSON.stringify(clubs));
+  }
 
   const [totalAssets, _] = useState<number>(1373240);
   return (
@@ -216,19 +225,23 @@ const Home = () => {
       <div className="px-10">
         <div className="mt-2 flex items-center justify-between">
           <Example
-            items={club}
+            items={clubs}
             selected={selectedClub}
             setSelected={setSelectedClub}
           />
           <div className="relative top-[4px] flex cursor-pointer items-center justify-center gap-5">
-            <div className="relative rounded-md p-[6px] hover:bg-gray-200">
-              <Image
-                src={"/calender.png"}
-                width={25}
-                height={25}
-                alt=""
-              />
-            </div>
+            <Link href={`/calender`}>
+              <a>
+                <div className="relative rounded-md p-[6px] hover:bg-gray-200">
+                  <Image
+                    src={"/calender.png"}
+                    width={25}
+                    height={25}
+                    alt=""
+                  />
+                </div>
+              </a>
+            </Link>
             <div className="relative top-[2px] cursor-pointer rounded-md p-[6px] hover:bg-gray-200">
               <Image
                 src={"/hambuger.png"}
@@ -354,5 +367,26 @@ const Home = () => {
     </Layout>
   );
 };
+
+export const getServerSideProps = withSsrSession(
+  async function ({ req }: any) {
+    // 여기서는 지금 로그인되어 있는 유저에 대한 모든 동아리 목록을 일단 불러와야 한다.
+    // @ts-ignore
+    const { clubs } = await client.user.findUnique({
+      where: {
+        id: req.session.user.id,
+      },
+      include: {
+        clubs: true,
+      },
+    });
+
+    return {
+      props: {
+        clubs: JSON.parse(JSON.stringify(clubs)),
+      },
+    };
+  }
+);
 
 export default Home;

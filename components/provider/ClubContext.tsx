@@ -4,14 +4,14 @@ import {
   SetStateAction,
   useContext,
 } from "react";
-import { selectionItem, club } from "../../pages/index";
+import { Club } from "@prisma/client";
 
 interface ClubContextType {
   state: {
-    club: selectionItem;
+    club: Club;
   };
   actions: {
-    setClub: Dispatch<SetStateAction<selectionItem>>;
+    setClub: Dispatch<SetStateAction<Club>>;
   };
 }
 
@@ -19,7 +19,8 @@ interface ClubContextType {
 const ClubContext = createContext<ClubContextType>({
   state: {
     club: {
-      name: club[0].name,
+      id: 1,
+      name: "",
     },
   },
   actions: {

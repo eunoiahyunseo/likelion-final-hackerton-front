@@ -152,19 +152,28 @@ const Member = () => {
     state: { club: selectedClub },
   } = useClubContext();
 
+  // Server-Side에서는 당연히 selectedClub이 이상한 값이 ( Anonymous )로 나오게 된다.
   const [userList, setUserList] = useState<UserType[]>(
-    UserMappingList[selectedClub.name]
+    selectedClub?.name
+      ? UserMappingList[selectedClub?.name]
+      : null
   );
 
   useEffect(() => {
-    const executivesMember = userList.filter(
-      (user) => user.executives
-    );
-    const defaultMember = userList.filter(
-      (user) => !user.executives
-    );
-    setUserList([...executivesMember, ...defaultMember]);
-  }, []);
+    if (!userList && selectedClub.name) {
+      // 만약 userList가 없는경우라면 업데이트 해줘야 한다.
+      setUserList([...UserMappingList[selectedClub.name]]);
+    }
+    if (userList) {
+      const executivesMember = userList.filter(
+        (user) => user.executives
+      );
+      const defaultMember = userList.filter(
+        (user) => !user.executives
+      );
+      setUserList([...executivesMember, ...defaultMember]);
+    }
+  }, [selectedClub]);
 
   const [showUserList, setShowUserList] =
     useState<boolean>(true);
@@ -172,10 +181,10 @@ const Member = () => {
     <Layout hasTabBar canGoBack seoTitle="search | Monegement">
       <div className="flex flex-col items-center justify-center">
         <div className="text-xl font-bold">
-          {selectedClub.name}
+          {selectedClub?.name}
         </div>
         <span className="font-semibold text-gray-400">
-          ({userList.length}명)
+          ({userList?.length}명)
         </span>
       </div>
 
@@ -186,7 +195,7 @@ const Member = () => {
 
       {showUserList ? (
         <div className="m-auto mt-8 flex w-3/4 flex-col space-y-4 transition-all duration-200">
-          {userList.map(
+          {userList?.map(
             ({ avatar, name, executives, dues }, index) => {
               return (
                 <MemberComponent

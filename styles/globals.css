@@ -11,15 +11,16 @@ body {
 }
 
 @layer components {
-    .blog-post-content h1 {
-        @apply text-red-500 mb-5;
+    
+    .notice-content h3 {
+        @apply text-lg font-bold;
     }
     
-    .blog-post-content p {
-        @apply mb-2 text-gray-500;
+    .notice-content p {
+        @apply text-gray-500 font-medium;
     }
     
-    .blog-post-content ul {
+    .notice-content ul {
         @apply pl-10 list-disc;
     }
 }
