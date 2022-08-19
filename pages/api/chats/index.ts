@@ -10,27 +10,23 @@ const handler: NextApiHandler<ResponseType> = async (
   req,
   res
 ) => {
-  const { club } = req.body;
+  // 모든 채팅방의 정보를 불러와야 한다.
 
-  // 단순히 session에 해당 club의 id를 넣어주면 된다.
+  const chats = await client.chat.findMany({
+    include: {
+      Club: true,
+    },
+  });
 
-  req.session.club = {
-    id: club,
-  };
-
-  await req.session.save();
-
-  console.log(req.session);
-
-  //   console.log(req.session);
   res.json({
     ok: true,
+    chats,
   });
 };
 
 export default withApiSession(
   withHandler({
-    methods: ["POST"],
+    methods: ["GET", "POST"],
     handler,
   })
 );

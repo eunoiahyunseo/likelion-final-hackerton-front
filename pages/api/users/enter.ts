@@ -54,24 +54,24 @@ const handler: NextApiHandler<ResponseType> = async (
     },
   });
 
-  if (phone) {
-    const message = await twilioClient.messages.create({
-      messagingServiceSid: process.env.TWILIO_MSID,
-      // 원래라면 phone으로 보내야 하지만 -> dev process에서는 그냥 내 폰으로
-      to: process.env.MY_PHONE!,
-      body: `Your login token is ${payload}`,
-    });
-    console.log(message);
-  } else if (email) {
-    const email_ = await mail.send({
-      from: "heart20021010@gmail.com",
-      to: email,
-      subject: "Your Carrot Market Verification Email",
-      text: `Your token is ${payload}`,
-      html: `<strong>Your token is ${payload}</strong>`,
-    });
-    console.log(email_);
-  }
+  // if (phone) {
+  //   const message = await twilioClient.messages.create({
+  //     messagingServiceSid: process.env.TWILIO_MSID,
+  //     // 원래라면 phone으로 보내야 하지만 -> dev process에서는 그냥 내 폰으로
+  //     to: process.env.MY_PHONE!,
+  //     body: `Your login token is ${payload}`,
+  //   });
+  //   console.log(message);
+  // } else if (email) {
+  //   const email_ = await mail.send({
+  //     from: "heart20021010@gmail.com",
+  //     to: email,
+  //     subject: "Your Carrot Market Verification Email",
+  //     text: `Your token is ${payload}`,
+  //     html: `<strong>Your token is ${payload}</strong>`,
+  //   });
+  //   console.log(email_);
+  // }
 
   res.status(200).json({ ok: true });
 };

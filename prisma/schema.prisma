@@ -10,16 +10,41 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  phone     String?  @unique
-  email     String?  @unique
+  id        Int       @id @default(autoincrement())
+  phone     String?   @unique
+  email     String?   @unique
   name      String
   avatar    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   tokens    Token[]
   answers   Answer[]
   clubs     Club[]
+  Chat      Chat[]
+  Message   Message[]
+}
+
+// 하나의 채팅방은 방을 만든 사용자가 있을것이다.
+model Chat {
+  id        Int       @id @default(autoincrement())
+  title     String    @default("Anonymous")
+  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  Club      Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId    Int
+  messages  Message[]
+  createdAt DateTime  @default(now())
+}
+
+// message에는 작성자의 정보와, chat즉 채팅방의 정보가 한번에 들어가야 한다
+// 당연하지만 메시지 정보드 들어가야 한다.
+model Message {
+  id      Int    @id @default(autoincrement())
+  chat    Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId  Int
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  Int
+  message String @db.MediumText
 }
 
 // user와 club은 many-to-many 관계이다.
@@ -31,6 +56,31 @@ model Club {
   users   User[]
   posts   Post[]
   Finance Finance[]
+
+  ClubExpenditureInfo ClubExpenditureInfo?
+  Chat                Chat[]
+}
+
+// Club의 자산, 수입, 지출을 저장하자
+// Club의 각 월별 지출
+model ClubExpenditureInfo {
+  id              Int               @id @default(autoincrement())
+  club            Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId          Int               @unique
+  asset           Int
+  income          Int
+  MonthlyClubInfo MonthlyClubInfo[]
+}
+
+// 그리고 CLubExpenditureInfo에 MonthlyInfo를 가져와보자
+// 나중에는 년도에 따라서 또 구분해줘야 하긴함 -> 일단 2022년도 하나만 생각하자
+
+// 또한 각 month마다 
+model MonthlyClubInfo {
+  id            Int                 @id @default(autoincrement())
+  expenditure   ClubExpenditureInfo @relation(fields: [expenditureId], references: [id], onDelete: Cascade)
+  expenditureId Int
+  month         Int
 }
 
 // many-to-many를 위한 추가 테이블
@@ -96,12 +146,35 @@ model Answer {
 }
 
 // 기본적으로는 지출이라고 본다.
+// 그리고 Finance안에 들어가는 정보의 크기를 줄이고 쿼리문을 용이하게 작성하기 위해
+// 1:1로 Detail한 정보는 FinanceDetail테이블과 연결했다.
 model Finance {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  out       Boolean  @default(true)
-  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  clubId    Int
-  money     Int
+  id            Int            @id @default(autoincrement())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  out           Boolean        @default(true)
+  club          Club           @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId        Int
+  money         Int
+  FinanceDetail FinanceDetail?
+}
+
+// 또한 FinanceDetail과 해시태그는 M:N관계이다.
+// Finance에 요일 정보가 있기 때문에 그건 필요없다 이걸 활용하면 되서.
+model FinanceDetail {
+  id        Int             @id @default(autoincrement())
+  finance   Finance         @relation(fields: [financeId], references: [id])
+  financeId Int             @unique
+  title     String
+  img       String?
+  hashtags  DetailHashTag[]
+}
+
+// FinanceDetail id = 1 -> "식음료" "MT" "술"
+// 그리고 태그의 색도 중복되지 않게 DB에 저장해야 한다.
+model DetailHashTag {
+  id            Int             @id @default(autoincrement())
+  financedetail FinanceDetail[]
+  content       String
+  color         String
 }

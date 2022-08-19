@@ -1,32 +1,36 @@
 import Layout from "@components/layout";
-import {
-  Dispatch,
-  Fragment,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import moment from "moment";
 import { withSsrSession } from "@libs/server/withSession";
 import client from "@libs/client/client";
-import { Finance } from "@prisma/client";
+import {
+  DetailHashTag,
+  Finance,
+  FinanceDetail,
+} from "@prisma/client";
 import { NextPage } from "next";
 import useSWR, { SWRConfig } from "swr";
 import { cls } from "@libs/client/utils";
-import { Listbox, Transition } from "@headlessui/react";
-import {
-  CheckIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/solid";
+import FloatingButton from "@components/FloatingButton";
 
 type ItemType = "calender" | "deal";
 
 interface FinanceResponse {
   ok: true;
   finance: Partial<Finance>[];
+}
+
+interface HashTagWithFinanceDetail extends FinanceDetail {
+  hashtags: DetailHashTag[];
+}
+interface DetailResponse extends Finance {
+  FinanceDetail: HashTagWithFinanceDetail;
+}
+interface FinanceDetailResponse {
+  ok: true;
+  finance: Partial<DetailResponse>[];
 }
 
 const Calender = () => {
@@ -38,6 +42,9 @@ const Calender = () => {
   );
 
   const { data } = useSWR<FinanceResponse>("/api/finance");
+
+  const { data: detailFinanceData } =
+    useSWR<FinanceDetailResponse>("/api/finance/detail");
 
   const [expenditure, setExpenditure] = useState<number>(0);
   const [income, setIncome] = useState<number>(0);
@@ -186,7 +193,9 @@ const Calender = () => {
                       html.push(
                         <div
                           className="text-xs font-semibold text-orange-400 "
-                          key={moment(date).format("YYYY-MM-DD")}
+                          key={new Date(
+                            item.createdAt!
+                          ).toISOString()}
                         >
                           -{item.money.toLocaleString("ko-KR")}
                         </div>
@@ -197,7 +206,9 @@ const Calender = () => {
                       html.push(
                         <div
                           className="text-xs font-semibold text-gray-600"
-                          key={moment(date).format("YYYY-MM-DD")}
+                          key={new Date(
+                            item.createdAt!
+                          ).toISOString()}
                         >
                           +{item.money.toLocaleString("ko-KR")}
                         </div>
@@ -220,6 +231,107 @@ const Calender = () => {
           />
         </div>
       ) : null}
+
+      {selectedItem === "deal" ? (
+        <div className="mx-6 mb-8 flex flex-col space-y-4">
+          {detailFinanceData &&
+            detailFinanceData.finance.map((data, index) => {
+              return (
+                <div
+                  key={index}
+                  className="flex flex-col space-y-2 border-b-2 border-gray-200 pb-4"
+                >
+                  <span className="text-sm font-semibold text-gray-600">
+                    {moment(data?.createdAt).format(
+                      "YYYY-MM-DD"
+                    )}
+                  </span>
+                  <div className="flex flex-row items-center justify-between">
+                    <div className="flex flex-row items-center space-x-2">
+                      <div className="aspect-square w-12 rounded-md bg-slate-300" />
+                      <div className="flex flex-col">
+                        <span className="text-lg font-normal text-black">
+                          {data?.FinanceDetail?.title}
+                        </span>
+                        <div className="flex flex-row items-center space-x-2">
+                          {data?.FinanceDetail?.hashtags?.map(
+                            ({ content, color }) => {
+                              return (
+                                <span
+                                  key={`${content}-${color}`}
+                                  style={{
+                                    backgroundColor: color,
+                                    opacity: 0.8,
+                                  }}
+                                  className={cls(
+                                    `rounded-2xl px-2 text-xs font-semibold`
+                                  )}
+                                >
+                                  #{content}
+                                </span>
+                              );
+                            }
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-row items-center space-x-4 pr-6">
+                      <span
+                        className={cls(
+                          "font-bold",
+                          data?.out
+                            ? "text-orange-400"
+                            : "text-gray-600"
+                        )}
+                      >
+                        {data?.out
+                          ? `-${data?.money?.toLocaleString(
+                              "ko-KR"
+                            )}`
+                          : `+${data?.money?.toLocaleString(
+                              "ko-KR"
+                            )}`}
+                      </span>
+                      <div>
+                        <svg
+                          className="h-4 w-4 text-gray-700"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      ) : null}
+      <FloatingButton href="/bill">
+        <svg
+          className="h-6 w-6"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+          />
+        </svg>
+      </FloatingButton>
     </Layout>
   );
 };
@@ -255,9 +367,10 @@ export const getServerSideProps = withSsrSession(
         money: true,
         out: true,
       },
+      take: 10,
     });
 
-    console.log(finance);
+    // console.log(finance);
 
     return {
       props: {

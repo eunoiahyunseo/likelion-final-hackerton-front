@@ -21,7 +21,10 @@ const ClubProvider: React.FC<{ children: ReactNode }> = ({
   });
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (
+      typeof window !== "undefined" &&
+      router?.pathname !== "/enter"
+    ) {
       const importedClub = localStorage.getItem("clubs");
       setClub(JSON.parse(importedClub!)[0]);
     }
@@ -32,7 +35,7 @@ const ClubProvider: React.FC<{ children: ReactNode }> = ({
   // 이제 iron-session에서 session에 club을 저장하고 싶으니까 이를 핸들링하기 위한 함수를 작성해 주자
   const setClubOnSession = useCallback(
     (club: number) => {
-      if (loading) return;
+      // if (loading) return;
       mutation({ club });
     },
     [loading, mutation]

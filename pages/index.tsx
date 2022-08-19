@@ -222,6 +222,7 @@ const Home = ({ clubs }: { clubs: Club[] }) => {
 
   // 먄약에 club이 바뀌면 ContextAPI의 selectedClub이 바뀔것이다.
   useEffect(() => {
+    console.log("useEffect >> ", selectedClub?.id);
     setClubOnSession(selectedClub?.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClub]);
@@ -352,7 +353,7 @@ const Home = ({ clubs }: { clubs: Club[] }) => {
         ) : null}
 
         <div className="p flex flex-col space-y-5 py-2">
-          <FloatingButton href="/">
+          <FloatingButton href="/bill">
             <svg
               className="h-6 w-6"
               xmlns="http://www.w3.org/2000/svg"

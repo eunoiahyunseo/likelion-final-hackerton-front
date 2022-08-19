@@ -3,8 +3,11 @@ import Layout from "@components/layout";
 import Image from "next/image";
 import { cls } from "@libs/client/utils";
 import client from "@libs/client/client";
-import { Club, Post } from "@prisma/client";
+import { Chat, Club, Post } from "@prisma/client";
 import { NextPage } from "next";
+import useSWR from "swr";
+import moment from "moment";
+import Link from "next/link";
 
 type ItemType = "board" | "chat";
 
@@ -15,9 +18,21 @@ interface PostProps extends Post {
   };
 }
 
+interface ChatsWithClub extends Chat {
+  Club: Partial<Club>;
+}
+
+interface ChatListResponse {
+  ok: true;
+  chats: ChatsWithClub[];
+}
+
 const Board: NextPage<{ posts: PostProps[] }> = ({ posts }) => {
   const [selectedItem, setSelectedItem] =
     useState<ItemType>("board");
+
+  const { data: chatList, mutate } =
+    useSWR<ChatListResponse>("/api/chats");
 
   return (
     <Layout hasTabBar canGoBack seoTitle="board | Monegement">
@@ -128,6 +143,43 @@ const Board: NextPage<{ posts: PostProps[] }> = ({ posts }) => {
                 );
               }
             )}
+          </div>
+        ) : null}
+
+        {selectedItem === "chat" ? (
+          <div className="m-8 flex flex-col space-y-2">
+            {chatList &&
+              chatList.chats.map((chat) => {
+                return (
+                  <Link
+                    key={chat?.id}
+                    href={`/chats/${chat?.id}`}
+                  >
+                    <a>
+                      <div className="mt-4 flex flex-row items-center border-b-2 border-gray-200">
+                        <div className="itemsc-center flex grow space-x-4 pb-4">
+                          <div className="aspect-square w-14 rounded-lg bg-slate-300" />
+                          <div className="flex flex-col">
+                            <span className="text-lg font-semibold text-gray-600">
+                              {chat?.title}
+                            </span>
+                            <span className="text-sm font-light text-gray-700">
+                              {chat?.Club.name}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="font-semibold">
+                            {moment(chat?.createdAt).format(
+                              "YYYY-MM-DD"
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                  </Link>
+                );
+              })}
           </div>
         ) : null}
       </div>
