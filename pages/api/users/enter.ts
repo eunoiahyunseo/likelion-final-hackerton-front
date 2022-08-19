@@ -32,8 +32,9 @@ const handler: NextApiHandler<ResponseType> = async (
   if (!user) return res.status(400).json({ ok: false });
 
   // 랜덤 6자리 토큰
-  const payload =
-    Math.floor(10000 + Math.random() * 900000) + "";
+  const payload = "111111";
+  // const payload =
+  //   Math.floor(10000 + Math.random() * 900000) + "";
 
   const token = await client.token.create({
     data: {
@@ -45,7 +46,6 @@ const handler: NextApiHandler<ResponseType> = async (
             ...user,
           },
           create: {
-            // name은 필수니까 그냥 기본 이름으로 중복 가능하게 Anonymous로 설정해 준다.
             name: "Anonymous",
             ...user,
           },

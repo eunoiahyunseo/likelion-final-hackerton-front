@@ -15,6 +15,8 @@
     "@headlessui/react": "^1.6.6",
     "@heroicons/react": "^1.0.6",
     "@mui/material": "^5.7.0",
+    "@nivo/core": "^0.79.0",
+    "@nivo/pie": "^0.79.1",
     "@prisma/client": "3.13.0",
     "@sendgrid/mail": "^7.6.2",
     "@tailwindcss/forms": "^0.5.0",

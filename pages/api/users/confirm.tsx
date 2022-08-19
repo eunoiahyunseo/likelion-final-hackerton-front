@@ -11,7 +11,7 @@ const handler: NextApiHandler<ResponseType> = async (
   res
 ) => {
   const { token } = req.body;
-  const foundToken = await client.token.findUnique({
+  const foundToken = await client.token.findFirst({
     where: {
       payload: token,
     },
@@ -34,6 +34,7 @@ const handler: NextApiHandler<ResponseType> = async (
       userId: foundToken.userId,
     },
   });
+  // 그리고 일단 해당 사람을 Likelion에 집어 넣어버리자
 
   res.json({
     ok: true,

@@ -21,6 +21,8 @@ import { NextPageContext } from "next";
 import { Club } from "@prisma/client";
 import { browser } from "process";
 import Link from "next/link";
+import { ResponsivePie } from "@nivo/pie";
+import useSWR from "swr";
 
 // export interface selectionItem {
 //   name: string;
@@ -140,18 +142,18 @@ const ChartInfo: Partial<CharInfoType>[] = [
 ];
 
 const monthExpenditure: any[] = [
-  { name: "1월 지출", expenditure: { total: 776300 } },
-  { name: "2월 지출", expenditure: { total: 992100 } },
-  { name: "3월 지출", expenditure: { total: 646100 } },
-  { name: "4월 지출", expenditure: { total: 576700 } },
-  { name: "5월 지출", expenditure: { total: 1076300 } },
-  { name: "6월 지출", expenditure: { total: 246300 } },
-  { name: "7월 지출", expenditure: { total: 186300 } },
-  { name: "8월 지출", expenditure: { total: 932100 } },
-  { name: "9월 지출", expenditure: { total: 611300 } },
-  { name: "10월 지출", expenditure: { total: 1176300 } },
-  { name: "11월 지출", expenditure: { total: 456700 } },
-  { name: "12월 지출", expenditure: { total: 376100 } },
+  { name: "1월 지출", month: 1 },
+  { name: "2월 지출", month: 2 },
+  { name: "3월 지출", month: 3 },
+  { name: "4월 지출", month: 4 },
+  { name: "5월 지출", month: 5 },
+  { name: "6월 지출", month: 6 },
+  { name: "7월 지출", month: 7 },
+  { name: "8월 지출", month: 8 },
+  { name: "9월 지출", month: 9 },
+  { name: "10월 지출", month: 10 },
+  { name: "11월 지출", month: 11 },
+  { name: "12월 지출", month: 12 },
 ];
 
 interface expenditureDetail {
@@ -166,6 +168,129 @@ const expenditureDetail: expenditureDetail[] = [
   { name: "교통", ratio: 13, color: "bg-yellow-500" },
   { name: "교육", ratio: 5, color: "bg-indigo-500" },
 ];
+
+const MyResponsivePie = ({ data }: any) => {
+  console.log("data >> ", data);
+  return (
+    <ResponsivePie
+      data={data}
+      margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+      innerRadius={0.5}
+      padAngle={0.7}
+      cornerRadius={3}
+      activeOuterRadiusOffset={8}
+      borderWidth={1}
+      borderColor={{
+        from: "color",
+        modifiers: [["darker", 0.2]],
+      }}
+      arcLinkLabelsSkipAngle={10}
+      arcLinkLabelsTextColor="#333333"
+      arcLinkLabelsThickness={2}
+      arcLinkLabelsColor={{ from: "color" }}
+      arcLabelsSkipAngle={10}
+      arcLabelsTextColor={{
+        from: "color",
+        modifiers: [["darker", 2]],
+      }}
+      defs={[
+        {
+          id: "dots",
+          type: "patternDots",
+          background: "inherit",
+          color: "rgba(255, 255, 255, 0.3)",
+          size: 4,
+          padding: 1,
+          stagger: true,
+        },
+        {
+          id: "lines",
+          type: "patternLines",
+          background: "inherit",
+          color: "rgba(255, 255, 255, 0.3)",
+          rotation: -45,
+          lineWidth: 6,
+          spacing: 10,
+        },
+      ]}
+      fill={[
+        {
+          match: {
+            id: "ruby",
+          },
+          id: "dots",
+        },
+        {
+          match: {
+            id: "c",
+          },
+          id: "dots",
+        },
+        {
+          match: {
+            id: "go",
+          },
+          id: "dots",
+        },
+        {
+          match: {
+            id: "python",
+          },
+          id: "dots",
+        },
+        {
+          match: {
+            id: "scala",
+          },
+          id: "lines",
+        },
+        {
+          match: {
+            id: "lisp",
+          },
+          id: "lines",
+        },
+        {
+          match: {
+            id: "elixir",
+          },
+          id: "lines",
+        },
+        {
+          match: {
+            id: "javascript",
+          },
+          id: "lines",
+        },
+      ]}
+      legends={[
+        {
+          anchor: "bottom",
+          direction: "row",
+          justify: false,
+          translateX: 0,
+          translateY: 56,
+          itemsSpacing: 0,
+          itemWidth: 100,
+          itemHeight: 18,
+          itemTextColor: "#999",
+          itemDirection: "left-to-right",
+          itemOpacity: 1,
+          symbolSize: 18,
+          symbolShape: "circle",
+          effects: [
+            {
+              on: "hover",
+              style: {
+                itemTextColor: "#000",
+              },
+            },
+          ],
+        },
+      ]}
+    />
+  );
+};
 
 const ChartComponent = ({
   infoIdx,
@@ -222,12 +347,52 @@ const Home = ({ clubs }: { clubs: Club[] }) => {
 
   // 먄약에 club이 바뀌면 ContextAPI의 selectedClub이 바뀔것이다.
   useEffect(() => {
-    console.log("useEffect >> ", selectedClub?.id);
     setClubOnSession(selectedClub?.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClub]);
 
   const [totalAssets, _] = useState<number>(1373240);
+
+  const { data: ExpenditureData } = useSWR<any>(
+    `/api/finance/${expenditure.month}/month`
+  );
+
+  const { data: IncomeData } = useSWR<any>(
+    `/api/finance/${expenditure.month}/month`
+  );
+
+  const data2 = [
+    {
+      id: "javascript",
+      label: "javascript",
+      value: 320,
+      color: "hsl(157, 70%, 50%)",
+    },
+    {
+      id: "haskell",
+      label: "haskell",
+      value: 293,
+      color: "hsl(185, 70%, 50%)",
+    },
+    {
+      id: "c",
+      label: "c",
+      value: 538,
+      color: "hsl(82, 70%, 50%)",
+    },
+    {
+      id: "elixir",
+      label: "elixir",
+      value: 467,
+      color: "hsl(185, 70%, 50%)",
+    },
+    {
+      id: "lisp",
+      label: "lisp",
+      value: 135,
+      color: "hsl(276, 70%, 50%)",
+    },
+  ];
   return (
     <Layout title="홈" hasTabBar seoTitle="home | Monegement">
       <div className="px-10">
@@ -297,9 +462,15 @@ const Home = ({ clubs }: { clubs: Club[] }) => {
           </div>
         ) : null}
 
+        {selectedChart.type === "수입" ? (
+          <div className="m-auto aspect-square h-3/4">
+            <MyResponsivePie data={data2} />
+          </div>
+        ) : null}
+
         {selectedChart.type === "지출" ? (
           <div>
-            <div className="mt-10 flex flex-col items-center">
+            <div className="mt-10 flex w-full flex-col items-center">
               <div className="flex items-center justify-center gap-40">
                 <span className="relative -right-6 text-xl font-bold text-gray-300">
                   총지출
@@ -312,21 +483,27 @@ const Home = ({ clubs }: { clubs: Club[] }) => {
                 />
               </div>
               <div className="mt-6 text-[30px] font-bold">
-                {expenditure.expenditure.total.toLocaleString(
-                  "ko-KR"
-                )}{" "}
+                {ExpenditureData
+                  ? ExpenditureData?.filteredData
+                      .reduce(
+                        (acc: any, item: any) =>
+                          acc + item.value,
+                        0
+                      )
+                      .toLocaleString("ko-KR")
+                  : 0}
                 원
               </div>
-              <div className="relative mt-8 aspect-square w-3/4">
-                <Image
-                  layout="fill"
-                  alt="graph props"
-                  src={`/graph.png`}
-                  className="z-0 object-contain"
-                />
+
+              <div className="m-auto flex h-96 w-full flex-row justify-center">
+                {ExpenditureData ? (
+                  <MyResponsivePie
+                    data={ExpenditureData.filteredData}
+                  />
+                ) : null}
               </div>
             </div>
-            <div className="mt-10 mb-4 space-y-4">
+            {/* <div className="mt-10 mb-4 space-y-4">
               {expenditureDetail.map(
                 ({ name, ratio, color }, detailIdx) => {
                   return (
@@ -348,7 +525,7 @@ const Home = ({ clubs }: { clubs: Club[] }) => {
                   );
                 }
               )}
-            </div>
+            </div> */}
           </div>
         ) : null}
 

@@ -20,7 +20,7 @@ const handler: NextApiHandler<ResponseType> = async (
 
   await req.session.save();
 
-  console.log(req.session);
+  // console.log(req.session);
 
   //   console.log(req.session);
   res.json({

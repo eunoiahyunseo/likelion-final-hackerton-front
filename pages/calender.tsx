@@ -82,7 +82,7 @@ const Calender = () => {
                 : "text-gray-500"
             )}
           >
-            게시판
+            달력
           </span>
         </div>
         <div
@@ -102,7 +102,7 @@ const Calender = () => {
                 : "text-gray-500"
             )}
           >
-            채팅
+            거래 내역
           </span>
         </div>
       </div>

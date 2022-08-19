@@ -13,22 +13,22 @@ const handler: NextApiHandler<ResponseType> = async (
   // 모든 채팅방의 정보를 불러와야 한다.
   const {
     query: { id },
+    body,
+    session: { user },
   } = req as any;
 
-  // id에 해당하는 chat을 꺼내와야 한다.
-  const chats = await client.chat.findUnique({
-    where: {
-      id: +id,
-    },
-    include: {
-      messages: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
+  // 여기에는 body로 들어온
+  const message = await client.message.create({
+    data: {
+      message: body.message,
+      chat: {
+        connect: {
+          id: +id.toString(),
+        },
+      },
+      user: {
+        connect: {
+          id: user?.id,
         },
       },
     },
@@ -36,7 +36,7 @@ const handler: NextApiHandler<ResponseType> = async (
 
   res.json({
     ok: true,
-    chats,
+    message,
   });
 };
 

@@ -189,7 +189,6 @@ const Board: NextPage<{ posts: PostProps[] }> = ({ posts }) => {
 
 // on-Demand Incremental getStaticProps
 export async function getStaticProps() {
-  console.log("BUILDING COMUNITY STATICALLY");
   // post를 불러올 때, Post를 작성한 동아리 정보, answer의 수를 같이 잡아와야 한다.
   const posts = await client.post.findMany({
     include: {
@@ -210,7 +209,7 @@ export async function getStaticProps() {
     props: {
       posts: JSON.parse(JSON.stringify(posts)),
     },
-    // revalidate: 20,
+    revalidate: 6000,
   };
 }
 

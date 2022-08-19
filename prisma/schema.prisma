@@ -51,7 +51,7 @@ model Message {
 // 그 이유는 한 사람이 여러개의 동아리를 한 동아리가 여러개의 사용자를 가질 수 있기 때문이다.
 model Club {
   id   Int    @id @default(autoincrement())
-  name String @unique
+  name String
 
   users   User[]
   posts   Post[]
@@ -95,7 +95,7 @@ model MonthlyClubInfo {
 
 model Token {
   id        Int      @id @default(autoincrement())
-  payload   String   @unique
+  payload   String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
   createdAt DateTime @default(now())
