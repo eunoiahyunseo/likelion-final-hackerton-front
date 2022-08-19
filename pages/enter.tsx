@@ -216,6 +216,16 @@ const Enter: NextPage = () => {
         <div className="font-sm mt-6 cursor-pointer text-center font-semibold text-gray-300 underline decoration-solid transition-colors duration-100 hover:text-gray-400">
           로그인 하지 않고 둘러보기
         </div>
+
+        <div className="flex flex-col p-4 text-xl font-bold text-gray-700">
+          <span>test 이메일 주소 : heart2002101@knu.ac.kr</span>
+          <span>test toekn value : 111111</span>
+          <span>분석 값 확인 로그인 후 : Likelion 8월확인</span>
+          <span>
+            아직 동아리 추가 기능이 완성안되서 DB에 그냥
+            때려박았음.{" "}
+          </span>
+        </div>
       </div>
     </div>
   );
