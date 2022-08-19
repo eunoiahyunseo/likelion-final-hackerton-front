@@ -223,7 +223,7 @@ const Enter: NextPage = () => {
           <span>분석 값 확인 로그인 후 : Likelion 8월확인</span>
           <span>
             아직 동아리 추가 기능이 완성안되서 DB에 그냥
-            때려박았음.{" "}
+            때려박았음. 토큰확인 안되면 연타
           </span>
         </div>
       </div>
