@@ -4,16 +4,16 @@ import withHandler, {
 } from "@libs/server/withHandler";
 import type { NextApiHandler } from "next";
 
-import twilio from "twilio";
-import mail from "@sendgrid/mail";
+// import twilio from "twilio";
+// import mail from "@sendgrid/mail";
 import { withApiSession } from "@libs/server/withSession";
 
-mail.setApiKey(process.env.SENDGRID_API_KEY!);
+// mail.setApiKey(process.env.SENDGRID_API_KEY!);
 
-const twilioClient = twilio(
-  process.env.TWILIO_SID,
-  process.env.TWILIO_TOKEN
-);
+// // const twilioClient = twilio(
+// //   process.env.TWILIO_SID,
+// //   process.env.TWILIO_TOKEN
+// // );
 
 interface reqDataType {
   email: string;
