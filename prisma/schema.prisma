@@ -34,6 +34,9 @@ model Chat {
   clubId    Int
   messages  Message[]
   createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([clubId])
 }
 
 // message에는 작성자의 정보와, chat즉 채팅방의 정보가 한번에 들어가야 한다
@@ -45,6 +48,9 @@ model Message {
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  Int
   message String @db.MediumText
+
+  @@index([chatId])
+  @@index([userId])
 }
 
 // user와 club은 many-to-many 관계이다.
@@ -70,6 +76,8 @@ model ClubExpenditureInfo {
   asset           Int
   income          Int
   MonthlyClubInfo MonthlyClubInfo[]
+
+  @@index([clubId])
 }
 
 // 그리고 CLubExpenditureInfo에 MonthlyInfo를 가져와보자
@@ -81,6 +89,8 @@ model MonthlyClubInfo {
   expenditure   ClubExpenditureInfo @relation(fields: [expenditureId], references: [id], onDelete: Cascade)
   expenditureId Int
   month         Int
+
+  @@index([expenditureId])
 }
 
 // many-to-many를 위한 추가 테이블
@@ -126,6 +136,8 @@ model Post {
   club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubId    Int
   answers   Answer[]
+
+  @@index([clubId])
 }
 
 // Post와 연결되어 있는 답변 테이블 그리고 답변을 쓴 사용자를
@@ -157,6 +169,8 @@ model Finance {
   clubId        Int
   money         Int
   FinanceDetail FinanceDetail?
+
+  @@index([clubId])
 }
 
 // 또한 FinanceDetail과 해시태그는 M:N관계이다.
@@ -168,6 +182,8 @@ model FinanceDetail {
   title     String
   img       String?
   hashtags  DetailHashTag[]
+
+  @@index([financeId])
 }
 
 // FinanceDetail id = 1 -> "식음료" "MT" "술"
